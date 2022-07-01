@@ -1,0 +1,8 @@
+{
+    "name": "lazyperson0710/commanditem",
+    "description": "commandItem",
+    "minimum-stability": "stable",
+    "require": {
+        "pocketmine/pocketmine-mp": "4.*"
+    }
+}
