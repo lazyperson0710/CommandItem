@@ -32,15 +32,11 @@ class Main extends PluginBase implements Listener {
                 ],
             ]
         ]);
-            $this->data = $config->get("CommandItem");
+        $this->data = $config->get("CommandItem");
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
     }
 
     public function onInteract(PlayerInteractEvent $event): void {
-        $this->onProcessing($event);
-    }
-
-    public function onUse(PlayerItemUseEvent $event) {
         $this->onProcessing($event);
     }
 
@@ -49,34 +45,38 @@ class Main extends PluginBase implements Listener {
     }
 
     /**
-     * @param PlayerInteractEvent|PlayerItemUseEvent|BlockPlaceEvent $event
+     * @param PlayerInteractEvent|BlockPlaceEvent $event
      * @return void
      */
-    public function onProcessing(PlayerInteractEvent|PlayerItemUseEvent|BlockPlaceEvent $event): void {
+    public function onProcessing(PlayerInteractEvent|BlockPlaceEvent $event): void {
         $item = $event->getPlayer()->getInventory()->getItemInHand();
-        foreach ($this->data as $key => $data){
+        foreach ($this->data as $key => $data) {
             if ($item->getId() === $this->data[$key]["itemId"] && $item->getMeta() === $this->data[$key]["itemMeta"]) {
                 if (!empty($this->data[$key]["name"])) {
                     if ($item->getCustomName() === $this->data[$key]["name"]) {
                         if ($this->data[$key]["eventCancel"] === true) {
                             $event->cancel();
                         }
-                        foreach ($this->data[$key]["command"] as $command) {
-                            $event->getPlayer()->getServer()->dispatchCommand($event->getPlayer(), $command);
+                        if ($event instanceof PlayerInteractEvent) {
+                            foreach ($this->data[$key]["command"] as $command) {
+                                $event->getPlayer()->getServer()->dispatchCommand($event->getPlayer(), $command);
+                            }
+                            return;
                         }
                     }
                 } else {
                     if ($this->data[$key]["eventCancel"] === true) {
                         $event->cancel();
                     }
-                    foreach ($this->data[$key]["command"] as $command) {
-                        $event->getPlayer()->getServer()->dispatchCommand($event->getPlayer(), $command);
+                    if ($event instanceof PlayerInteractEvent) {
+                        foreach ($this->data[$key]["command"] as $command) {
+                            $event->getPlayer()->getServer()->dispatchCommand($event->getPlayer(), $command);
+                        }
+                        return;
                     }
                 }
             }
         }
-        
-        
-        
     }
+
 }
