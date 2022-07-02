@@ -2,7 +2,6 @@
 
 namespace lazyperson0710\commandItem;
 
-use pocketmine\event\block\BlockPlaceEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\player\PlayerItemUseEvent;
@@ -40,15 +39,15 @@ class Main extends PluginBase implements Listener {
         $this->onProcessing($event);
     }
 
-    public function onPlace(BlockPlaceEvent $event): void {
+    public function onItemUse(PlayerItemUseEvent $event): void {
         $this->onProcessing($event);
     }
 
     /**
-     * @param PlayerInteractEvent|BlockPlaceEvent $event
+     * @param PlayerInteractEvent|PlayerItemUseEvent $event
      * @return void
      */
-    public function onProcessing(PlayerInteractEvent|BlockPlaceEvent $event): void {
+    public function onProcessing(PlayerInteractEvent|PlayerItemUseEvent $event): void {
         $item = $event->getPlayer()->getInventory()->getItemInHand();
         foreach ($this->data as $key => $data) {
             if ($item->getId() === $this->data[$key]["itemId"] && $item->getMeta() === $this->data[$key]["itemMeta"]) {
@@ -57,26 +56,20 @@ class Main extends PluginBase implements Listener {
                         if ($this->data[$key]["eventCancel"] === true) {
                             $event->cancel();
                         }
-                        if ($event instanceof PlayerInteractEvent) {
-                            foreach ($this->data[$key]["command"] as $command) {
-                                $event->getPlayer()->getServer()->dispatchCommand($event->getPlayer(), $command);
-                            }
-                            return;
+                        foreach ($this->data[$key]["command"] as $command) {
+                            $event->getPlayer()->getServer()->dispatchCommand($event->getPlayer(), $command);
                         }
                     }
                 } else {
                     if ($this->data[$key]["eventCancel"] === true) {
                         $event->cancel();
                     }
-                    if ($event instanceof PlayerInteractEvent) {
-                        foreach ($this->data[$key]["command"] as $command) {
-                            $event->getPlayer()->getServer()->dispatchCommand($event->getPlayer(), $command);
-                        }
-                        return;
+                    foreach ($this->data[$key]["command"] as $command) {
+                        $event->getPlayer()->getServer()->dispatchCommand($event->getPlayer(), $command);
                     }
+                    return;
                 }
             }
         }
     }
-
 }
